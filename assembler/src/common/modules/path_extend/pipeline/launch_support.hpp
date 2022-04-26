@@ -69,9 +69,7 @@ struct PathExtendParamsContainer {
 
         min_edge_len = 0;
 
-        max_path_diff = FindMaxISRightQuantile(dataset_info);
-        if (mode == config::pipeline_type::rna || config::PipelineHelper::IsMetagenomicPipeline(mode))
-            max_path_diff = 0;
+        max_path_diff = 0;
     }
 
     const pe_config::MainPEParamsT& pe_cfg;
