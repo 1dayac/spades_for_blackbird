@@ -254,7 +254,7 @@ void PathExtendLauncher::RemoveOverlapsAndArtifacts(PathContainer &paths,
                          params_.max_path_diff);
 
     INFO("Paths deduplicated");
-    params_.pset.overlap_removal.enabled = false;
+
     if (params_.pset.overlap_removal.enabled) {
         resolver.RemoveOverlaps(paths, cover_map, params_.min_edge_len, params_.max_path_diff,
                                 params_.pset.overlap_removal.end_start_only,

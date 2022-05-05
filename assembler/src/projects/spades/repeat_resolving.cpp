@@ -22,7 +22,7 @@ static void PEResolving(GraphPack& gp) {
                                                   cfg::get().uneven_depth,
                                                   cfg::get().avoid_rc_connections,
                                                   cfg::get().use_scaffolder);
-
+    cfg::get_writable().pe_params.param_set.overlap_removal.enabled = false;
     path_extend::PathExtendLauncher exspander(cfg::get().ds, params, gp);
     exspander.Launch();
 }
