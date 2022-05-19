@@ -99,6 +99,7 @@ bool LoopDetectingPathExtender::DetectCycle(BidirectionalPath& path) {
 }
 
 bool LoopDetectingPathExtender::ResolveShortLoopByCov(BidirectionalPath& path) {
+    return true;
     if (TryToResolveTwoLoops(path))
         return true;
 
