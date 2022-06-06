@@ -42,7 +42,7 @@ struct DijkstraParams {
 };
 
 struct GapClosingConfig: public DijkstraParams {
-    bool run_dijkstra = false;
+    bool run_dijkstra = true;
     size_t max_gs_states = 120000000;
 };
 
