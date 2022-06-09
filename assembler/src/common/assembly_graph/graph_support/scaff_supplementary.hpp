@@ -158,7 +158,6 @@ public:
     }
 
     bool UniqueCheckEnabled() const {
-        return false;
         return !unique_.empty();
     }
 

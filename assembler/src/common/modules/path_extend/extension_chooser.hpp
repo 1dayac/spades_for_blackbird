@@ -800,9 +800,8 @@ public:
 
 private:
     bool UniqueEdge(EdgeId e) const {
-        return true;
-        if (g_.length(e) > max_repeat_length_)
-            return true;
+//        if (g_.length(e) > max_repeat_length_)
+//            return true;
         DEBUG("Analyze unique edge " << g_.int_id(e));
         if (cov_map_.size() == 0) {
             return false;
@@ -946,9 +945,13 @@ private:
             unique_edges_.insert(e);
             unique_edges_.insert(g_.conjugate(e));
         }
-        DEBUG("coverage based uniqueness started");
-        if (!uneven_depth_)
-            FindAllUniqueCoverageEdges();
+        for (auto e : unique_edges_) {
+            INFO("Unique edge");
+            INFO(e);
+        }
+//        DEBUG("coverage based uniqueness started");
+//        if (!uneven_depth_)
+//            FindAllUniqueCoverageEdges();
         DEBUG("Unique edges are found");
     }
 

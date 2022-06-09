@@ -209,7 +209,7 @@ void PathExtendLauncher::EstimateUniqueEdgesParams() {
 
 void PathExtendLauncher::FillUniqueEdgeStorage() {
     ScaffoldingUniqueEdgeAnalyzer unique_edge_analyzer(gp_, unique_data_.min_unique_length_, unique_data_.unique_variation_);
-    unique_edge_analyzer.FillUniqueEdgeStorage(unique_data_.main_unique_storage_);
+    //unique_edge_analyzer.FillUniqueEdgeStorage(unique_data_.main_unique_storage_);
 }
 
 void PathExtendLauncher::DebugOutputPaths(const PathContainer &paths, const std::string &name) const {
@@ -429,7 +429,7 @@ Extenders PathExtendLauncher::ConstructExtenders(const GraphCoverageMap &cover_m
         if (params_.pset.sm == scaffolding_mode::sm_old) {
             INFO("Will not use new long read scaffolding algorithm in this mode");
         } else {
-            utils::push_back_all(extenders, ConstructPBExtenders(generator));
+//            utils::push_back_all(extenders, ConstructPBExtenders(generator));
         }
     }
 
