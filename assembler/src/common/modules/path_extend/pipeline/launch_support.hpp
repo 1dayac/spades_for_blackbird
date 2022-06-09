@@ -69,7 +69,7 @@ struct PathExtendParamsContainer {
 
         min_edge_len = 0;
 
-        max_path_diff = 0;
+        max_path_diff = 10;
     }
 
     const pe_config::MainPEParamsT& pe_cfg;
