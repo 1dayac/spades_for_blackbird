@@ -800,6 +800,7 @@ public:
 
 private:
     bool UniqueEdge(EdgeId e) const {
+        return true;
         if (g_.length(e) > max_repeat_length_)
             return true;
         DEBUG("Analyze unique edge " << g_.int_id(e));
