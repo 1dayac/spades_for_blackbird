@@ -145,7 +145,7 @@ lcer
 
 pacbio_processor
 {
-    internal_length_cutoff 200
+    internal_length_cutoff 100
 ;align and traverse.
     compression_cutoff 0.6
     path_limit_stretching 1.1

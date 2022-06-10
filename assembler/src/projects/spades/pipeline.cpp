@@ -262,8 +262,10 @@ void assemble_genome() {
         if (mode == pipeline_type::plasmid)
             SPAdes.add<debruijn_graph::ChromosomeRemoval>();
 
-        if (HybridLibrariesPresent())
+        if (HybridLibrariesPresent()) {
             SPAdes.add<debruijn_graph::HybridLibrariesAligning>();
+            SPAdes.add<debruijn_graph::HybridLibrariesAligning>();
+        }
 
         // No graph modification allowed after HybridLibrariesAligning stage!
 
