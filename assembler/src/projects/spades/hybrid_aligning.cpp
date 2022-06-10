@@ -300,7 +300,7 @@ void PacbioAlignLibrary(const Graph &graph,
     // Initialize index
     sensitive_aligner::GAligner galigner(graph, pb, mode);
     path_storage.Clear();
-    
+
     PacbioAligner aligner(galigner, path_storage, gap_storage);
 
     auto stream = GetReadsStream(lib);
