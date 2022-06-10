@@ -57,7 +57,7 @@ params {
         cl_threshold  0
 
         fix_gaps       true
-        use_la_gap_joiner true
+        use_la_gap_joiner false
         ;next param should be 0.51 - 1.0 if use_old_score = true and 3.0 otherwise
         min_gap_score   0.7
 
