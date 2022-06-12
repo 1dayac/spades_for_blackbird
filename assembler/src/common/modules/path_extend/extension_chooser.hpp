@@ -1103,6 +1103,7 @@ public:
         std::set<EdgeId> filtered_cands;
         auto support_paths = cov_map_.GetCoveringPaths(path.Back());
         DEBUG("Found " << support_paths.size() << " covering paths!!!");
+        bool success = false;
         for (auto it = support_paths.begin(); it != support_paths.end(); ++it) {
             auto positions = (*it)->FindAll(path.Back());
             for (size_t i = 0; i < positions.size(); ++i) {
@@ -1113,7 +1114,7 @@ public:
 
                     if (UniqueBackPath(**it, positions[i])) {
                         DEBUG("Success");
-
+                        success = true;
                         EdgeId next = (*it)->At(positions[i] + 1);
                         weights_cands[next] += (*it)->GetWeight();
                         filtered_cands.insert(next);
@@ -1121,6 +1122,30 @@ public:
                 }
             }
         }
+        if (!success) {
+            std::map<EdgeId, int> next_variants;
+            EdgeId second_candidate;
+            for (auto it = support_paths.begin(); it != support_paths.end(); ++it) {
+                auto positions = (*it)->FindAll(path.Back());
+                for (size_t i = 0; i < positions.size(); ++i) {
+                    if ((int) positions[i] < (int) (*it)->Size() - 1
+                        && EqualBegins(path, (int) path.Size() - 1, **it,
+                                       positions[i], false)) {
+                            EdgeId next = (*it)->At(positions[i] + 1);
+                            next_variants[next]++;
+                            second_candidate = next;
+                    }
+                }
+            }
+            if (next_variants.size() == 1 ) {
+                if (next_variants[second_candidate] >= 2) {
+                    weights_cands[second_candidate] += next_variants[second_candidate];
+                    filtered_cands.insert(second_candidate);
+                }
+            }
+
+        }
+
         DEBUG("Candidates");
         for (auto iter = weights_cands.begin(); iter != weights_cands.end(); ++iter) {
             DEBUG("Candidate " << g_.int_id(iter->first) << " weight " << iter->second);
