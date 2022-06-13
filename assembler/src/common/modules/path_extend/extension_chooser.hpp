@@ -798,11 +798,35 @@ public:
         return unique_edges_.count(e) > 0;
     }
 
+    bool IsTopologicalRepeat(EdgeId e) const {
+        if (e == g_.conjugate(e)) {
+            return false;
+        }
+        if (g_.OutgoingEdgeCount(g_.EdgeEnd(e)) == 2 && g_.IncomingEdgeCount(g_.EdgeStart(e)) == 2) {
+            bool all_covered = true;
+            for (auto out_e : g_.OutgoingEdges(g_.EdgeEnd(e))) {
+                if (g_.coverage(out_e) < 10.0)
+                    all_covered = false;
+            }
+            for (auto in_e : g_.IncomingEdges(g_.EdgeStart(e))) {
+                if (g_.coverage(in_e) < 10.0)
+                    all_covered = false;
+            }
+
+            return all_covered;
+        }
+        return false;
+    }
+
 private:
     bool UniqueEdge(EdgeId e) const {
 //        if (g_.length(e) > max_repeat_length_)
 //            return true;
         DEBUG("Analyze unique edge " << g_.int_id(e));
+        if (IsTopologicalRepeat(e)) {
+            return false;
+        }
+
         if (cov_map_.size() == 0) {
             return false;
         }
