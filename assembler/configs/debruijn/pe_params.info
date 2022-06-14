@@ -140,7 +140,7 @@ params {
 
 long_reads {
     pacbio_reads {
-        filtering   1.9
+        filtering   2.5
         weight_priority    1.2
         unique_edge_priority 5.0
         min_significant_overlap 0
