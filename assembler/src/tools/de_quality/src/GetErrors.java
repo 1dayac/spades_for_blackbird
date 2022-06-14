@@ -125,7 +125,7 @@ public class GetErrors implements Runnable{
 			int len2 = 0;
 			int e1 = 0;
 			int e2 = 0;
-			boolean false;
+			boolean filtering = false;
 
 //          getting fpr info
             
