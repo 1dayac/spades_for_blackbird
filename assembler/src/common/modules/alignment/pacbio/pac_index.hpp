@@ -346,6 +346,8 @@ class PacBioMappingIndex {
         int cur_color = 0;
         int num_colors = 0;
         while (true) {
+            if (len == 0)
+                break;
             cur_color++;
             num_colors++;
             colors[0] = cur_color;
