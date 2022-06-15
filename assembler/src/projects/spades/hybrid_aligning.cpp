@@ -241,7 +241,7 @@ class PacbioAligner {
         for (size_t i = 0; i < thread_cnt; i++) {
             path_storage_.AddStorage(long_reads_by_thread[i]);
             gap_storage_.AddStorage(gaps_by_thread[i]);
-            //stats_.AddStorage(stats_by_thread[i]);
+            stats_.AddStorage(stats_by_thread[i]);
         }
     }
 
