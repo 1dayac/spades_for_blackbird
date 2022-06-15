@@ -367,7 +367,7 @@ public:
         std::map<EdgeId, EdgeId> old_2_new;
         for (const auto& new_2_olds : storage_) {
             for (EdgeId e : new_2_olds.second) {
-                VERIFY(!old_2_new.count(e));
+                //VERIFY(!old_2_new.count(e));
                 old_2_new[e] = new_2_olds.first;
             }
         }
