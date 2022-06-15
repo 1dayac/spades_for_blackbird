@@ -346,6 +346,21 @@ class PacBioMappingIndex {
         int cur_color = 0;
         int num_colors = 0;
         while (true) {
+            cur_color++;
+            num_colors++;
+            colors[0] = cur_color;
+            for (int i = 0; i < colors.size() - 1; ++i) {
+                if (cons_table[i][i+1]) {
+                    colors[i+1] = colors[i];
+                } else {
+                    cur_color++;
+                    num_colors++;
+                    colors[i+1] = cur_color;
+                }
+            }
+            break;
+        }
+        while (false) {
             for (size_t i = 0; i < len; ++i) {
                 max_size[i] = 0;
                 prev[i] = size_t(-1);
