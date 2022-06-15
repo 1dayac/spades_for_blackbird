@@ -17,14 +17,19 @@ class GapJoiner {
 
     EdgeId ClipEnd(EdgeId e, size_t to_trim) {
         VERIFY_MSG(to_trim < g_.length(e), "Asked to trim " << to_trim << " edge " << g_.str(e));
-        VERIFY(omnigraph::TerminalVertexCondition<Graph>(g_).Check(g_.EdgeEnd(e)));
+        //VERIFY(omnigraph::TerminalVertexCondition<Graph>(g_).Check(g_.EdgeEnd(e)));
         VERIFY(e != g_.conjugate(e));
         if (to_trim == 0) {
             return e;
         } else {
-            auto split_res = g_.SplitEdge(e, g_.length(e) - to_trim);
-            edge_remover_.DeleteEdge(split_res.second);
-            return split_res.first;
+            if (omnigraph::TerminalVertexCondition<Graph>(g_).Check(g_.EdgeEnd(e))) {
+                auto split_res = g_.SplitEdge(e, g_.length(e) - to_trim);
+                edge_remover_.DeleteEdge(split_res.second);
+                return split_res.first;
+            } else {
+                auto split_res = g_.SplitEdge(e, g_.length(e) - to_trim);
+                return split_res.first;
+            }
         }
     }
 

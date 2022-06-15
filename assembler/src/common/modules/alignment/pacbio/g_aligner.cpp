@@ -278,7 +278,7 @@ OneReadMapping GAligner::AddGapDescriptions(const vector<QualityRange> &start_cl
         EdgeId after_gap = sorted_edges[j][0];
 //do not add "gap" for rc-jumping
         if (before_gap != after_gap && before_gap != g_.conjugate(after_gap)) {
-            if (TopologyGap(before_gap, after_gap, true)) {
+            //if (TopologyGap(before_gap, after_gap, true)) {
                 if (start_clusters[j].CanFollow(end_clusters[i])) {
                     const auto &a = end_clusters[i];
                     const auto &b = start_clusters[j];
@@ -296,7 +296,7 @@ OneReadMapping GAligner::AddGapDescriptions(const vector<QualityRange> &start_cl
                     }
                 }
 
-            }
+            //}
         }
     }
     DEBUG("Resulting hits num=" << sorted_edges.size());
