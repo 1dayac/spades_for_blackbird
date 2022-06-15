@@ -149,7 +149,7 @@ public:
                                            int gap = 0) const = 0;
 
     virtual double CountWeight(const BidirectionalPath &path, EdgeId e,
-                               const std::set<size_t> &excluded_edges = {}, int gapLength = 0) const = 0;
+                               const std::set<size_t> &excluded_edges = {}, int gapLength = 0, bool in_short_loop = false) const = 0;
 
     const PairedInfoLibrary& PairedLibrary() const {
         return *lib_;
@@ -162,7 +162,7 @@ protected:
 class ReadCountWeightCounter: public WeightCounter {
 
     std::vector<EdgeWithPairedInfo> CountLib(const BidirectionalPath &path, EdgeId e,
-                                             int add_gap = 0) const {
+                                             int add_gap = 0, bool in_short_loop = false) const {
         std::vector<EdgeWithPairedInfo> answer;
 
         for (const EdgeWithPairedInfo& e_w_pi : ideal_provider_->FindCoveredEdges(path, e, add_gap)) {
@@ -187,7 +187,7 @@ public:
     }
 
     double CountWeight(const BidirectionalPath &path, EdgeId e,
-                       const std::set<size_t> &excluded_edges, int gap) const override {
+                       const std::set<size_t> &excluded_edges, int gap, bool in_short_loop) const override {
         double weight = 0.0;
 
         for (const auto& e_w_pi : CountLib(path, e, gap)) {
@@ -231,7 +231,7 @@ class PathCoverWeightCounter: public WeightCounter {
 
     std::vector<EdgeWithPairedInfo> CountLib(const BidirectionalPath &path, EdgeId e,
                                              const std::vector<EdgeWithPairedInfo> &ideally_covered_edges,
-                                             int add_gap = 0) const {
+                                             int add_gap = 0, bool in_short_loop = false) const {
         std::vector<EdgeWithPairedInfo> answer;
 
         for (const auto& e_w_pi : ideally_covered_edges) {
@@ -248,7 +248,7 @@ class PathCoverWeightCounter: public WeightCounter {
                     (int) path.LengthAt(e_w_pi.e_) + add_gap);
 
             TRACE("Actual weight " << weight);
-            if (weight < 5.1)
+            if (weight < 7.1 && !in_short_loop)
                 weight = 0;
             if (normalize_weight_) {
                 weight /= ideal_weight;
@@ -276,12 +276,12 @@ public:
     }
 
     double CountWeight(const BidirectionalPath &path, EdgeId e,
-                       const std::set<size_t> &excluded_edges, int gap) const override {
+                       const std::set<size_t> &excluded_edges, int gap, bool in_short_loop) const override {
         TRACE("Counting weight for edge " << g_.str(e));
         double lib_weight = 0.;
         const auto ideal_coverage = ideal_provider_->FindCoveredEdges(path, e, gap);
 
-        for (const auto& e_w_pi : CountLib(path, e, ideal_coverage, gap)) {
+        for (const auto& e_w_pi : CountLib(path, e, ideal_coverage, gap, in_short_loop)) {
             if (!excluded_edges.count(e_w_pi.e_)) {
                 lib_weight += e_w_pi.pi_;
             }

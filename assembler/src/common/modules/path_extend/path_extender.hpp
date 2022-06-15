@@ -207,7 +207,7 @@ public:
         EdgeId forward_cycle_edge = path.Back();
 
         size_t result = 0;
-        double lopp_edge_weight = wc_->CountWeight(path, backward_edge);
+        double lopp_edge_weight = wc_->CountWeight(path, backward_edge, {}, 0, true);
         if (math::gr(lopp_edge_weight, weight_threshold_)) {
             //Paired information on loop back edges exits => at leat one iteration
             //Looking for paired information supporting more than 1 cycle
