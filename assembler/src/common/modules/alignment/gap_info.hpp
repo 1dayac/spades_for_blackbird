@@ -183,6 +183,11 @@ static GapDescription<Graph> CreateGapInfoTryFixOverlap(const Graph &g, const Re
     VERIFY(left_offset > 0 && right_offset >= 0 &&
            left_offset <= g.length(left) && right_offset < g.length(right));
 
+    size_t max_gap = 2000;
+    if (seq_end - seq_start > max_gap) {
+        DEBUG("Gap is too large");
+        return GapDescription<Graph>();
+    }
     TRACE("Creating gap description");
 
     //trying to shift on the left edge
