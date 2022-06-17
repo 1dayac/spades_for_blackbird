@@ -139,6 +139,10 @@ GapFillerResult GapFiller::BestScoredPathBruteForce(const string &seq_string,
         }
     }
     TRACE(best_score);
+    if (best_score > seq_string.size() * 0.05) {
+        DEBUG("Best score is not reliable");
+        return bf_res;
+    }
     bf_res.score = best_score;
     if (best_score == numeric_limits<int>::max()) {
         if (paths.size() < 10) {
