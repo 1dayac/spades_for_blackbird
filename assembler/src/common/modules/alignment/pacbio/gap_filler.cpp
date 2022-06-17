@@ -139,10 +139,15 @@ GapFillerResult GapFiller::BestScoredPathBruteForce(const string &seq_string,
         }
     }
     TRACE(best_score);
+
     if (best_score > seq_string.size() * 0.05) {
         DEBUG("Best score is not reliable");
+        if (return_code == 0) {
+            bf_res.return_code.status = 12345;
+        }
         return bf_res;
     }
+
     bf_res.score = best_score;
     if (best_score == numeric_limits<int>::max()) {
         if (paths.size() < 10) {
@@ -175,7 +180,7 @@ GapFillerResult GapFiller::Run(const string &s,
     auto bf_res = BestScoredPathBruteForce(s, start_pos, end_pos, path_min_length, path_max_length);
     double bf_time = pc.time();
     pc.reset();
-    if (gap_cfg.run_dijkstra && bf_res.return_code.status != 0) {
+    if (gap_cfg.run_dijkstra && bf_res.return_code.status != 0 && bf_res.return_code.status != 12345) {
         auto dijkstra_res = BestScoredPathDijkstra(s, start_pos, end_pos, path_max_length, bf_res.score);
         DEBUG("BruteForce run: return_code=" << bf_res.return_code.status
               << " score=" << bf_res.score << " time_bf=" << bf_time
