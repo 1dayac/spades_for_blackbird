@@ -62,7 +62,9 @@ class GAligner {
   void FillGapsInCluster(const std::vector<QualityRange> &cur_cluster,
                          const Sequence &s,
                          std::vector<std::vector<debruijn_graph::EdgeId> > &edges,
-                         std::vector<omnigraph::MappingPath<debruijn_graph::EdgeId> > &bwa_hits) const;
+                         std::vector<omnigraph::MappingPath<debruijn_graph::EdgeId> > &bwa_hits,
+                         std::vector<QualityRange> &start_clusters,
+                         std::vector<QualityRange> &end_clusters) const;
 
   std::pair<int, int> GetPathLimits(const QualityRange &a,
                                     const QualityRange &b,

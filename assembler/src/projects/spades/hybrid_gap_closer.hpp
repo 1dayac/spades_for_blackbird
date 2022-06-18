@@ -216,9 +216,17 @@ private:
 
         DEBUG("Filtering ambiguous situations");
         auto ambiguously_extending = AmbiguouslyExtending();
+        std::set<EdgeId> skip;
         FilterByEdgePair([&](const EdgePair &ep) {
-            return ambiguously_extending.count(ep.first) ||
-                    ambiguously_extending.count(g_.conjugate(ep.second));
+            if (skip.count(ep.first) || skip.count(ep.second)) {
+                return ambiguously_extending.count(ep.first) ||
+                       ambiguously_extending.count(g_.conjugate(ep.second));
+            }
+            skip.insert(ep.first);
+            skip.insert(ep.second);
+            skip.insert(g_.conjugate(ep.first));
+            skip.insert(g_.conjugate(ep.second));
+            return false;
         });
     }
 

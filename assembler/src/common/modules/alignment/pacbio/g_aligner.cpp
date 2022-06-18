@@ -17,11 +17,13 @@ using debruijn_graph::Graph;
 void GAligner::FillGapsInCluster(const vector<QualityRange> &cur_cluster,
                                  const Sequence &s,
                                  vector<vector<debruijn_graph::EdgeId> > &edges,
-                                 vector<omnigraph::MappingPath<debruijn_graph::EdgeId> > &bwa_hits) const {
+                                 vector<omnigraph::MappingPath<debruijn_graph::EdgeId> > &bwa_hits,
+                                 vector<QualityRange> &start_clusters,
+                                 vector<QualityRange> &end_clusters) const {
     omnigraph::MappingPath<debruijn_graph::EdgeId> cur_sorted_hits;
     vector<debruijn_graph::EdgeId> cur_sorted_edges;
     EdgeId prev_edge = EdgeId();
-
+    start_clusters.push_back(*cur_cluster.begin());
     for (auto iter = cur_cluster.begin(); iter != cur_cluster.end();) {
         EdgeId cur_edge = iter->edgeId;
         if (prev_edge != EdgeId()) {
@@ -77,6 +79,8 @@ void GAligner::FillGapsInCluster(const vector<QualityRange> &cur_cluster,
                 if (res.return_code.status != 0) {
                     bwa_hits.push_back(cur_sorted_hits);
                     edges.push_back(cur_sorted_edges);
+                    start_clusters.push_back(*iter);
+                    end_clusters.push_back(*prev_iter);
                     cur_sorted_edges.clear();
                     cur_sorted_hits.clear();
                     prev_edge = EdgeId();
@@ -103,6 +107,7 @@ void GAligner::FillGapsInCluster(const vector<QualityRange> &cur_cluster,
         prev_edge = cur_edge;
         ++iter;
     }
+    end_clusters.push_back(cur_cluster.back());
     if (cur_sorted_edges.size() > 0) {
         edges.push_back(cur_sorted_edges);
         bwa_hits.push_back(cur_sorted_hits);
@@ -236,18 +241,18 @@ void GAligner::ProcessCluster(const Sequence &s,
     auto cur_cluster_end = cur_cluster.end() - 1;
     vector<vector<debruijn_graph::EdgeId> > edges;
     vector<omnigraph::MappingPath<debruijn_graph::EdgeId> > bwa_hits;
-    FillGapsInCluster(cur_cluster, s, edges, bwa_hits);
+    FillGapsInCluster(cur_cluster, s, edges, bwa_hits, start_clusters, end_clusters);
     for (auto &cur_sorted : edges) {
         DEBUG("Adding " << edges.size() << " subreads, cur alignments " << cur_sorted.size());
         if (cur_sorted.size() > 0) {
             for (EdgeId eee : cur_sorted) {
                 DEBUG (g_.int_id(eee));
             }
-            start_clusters.push_back(*cur_cluster_start);
-            end_clusters.push_back(*cur_cluster_end);
+//            start_clusters.push_back(*cur_cluster_start);
+//            end_clusters.push_back(*cur_cluster_end);
             sorted_edges.push_back(cur_sorted);
             //Blocking gap closing inside clusters;
-            block_gap_closer.push_back(true);
+            block_gap_closer.push_back(false);
         }
     }
     for (auto &cur_sorted : bwa_hits) {
