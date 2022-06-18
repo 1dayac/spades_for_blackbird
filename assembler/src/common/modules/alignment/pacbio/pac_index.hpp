@@ -273,8 +273,13 @@ class PacBioMappingIndex {
             if (rlen < SHORT_SPURIOUS_LENGTH &&
                     (rlen + g_.k()) * 2 < expected_additional_left + expected_additional_right) {
                 DEBUG ("Skipping spurious alignment " << i << " on edge " << mapped_path[i].first);
-            } else
-                res.push_back(mapped_path[i].first, mapped_path[i].second);
+            } else {
+                if (mapped_path[i].second.quality > 0.9) {
+                    res.push_back(mapped_path[i].first, mapped_path[i].second);
+                } else {
+                    DEBUG("Skip low quality alignment");
+                }
+            }
         }
 
 //        if (res.size() != mapped_path.size()) {

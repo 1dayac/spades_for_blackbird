@@ -61,8 +61,8 @@ void GAligner::FillGapsInCluster(const vector<QualityRange> &cur_cluster,
                     continue;
                 }
 
-                int seq_end = cur_first_index.read_position;
-                int seq_start = prev_last_index.read_position;
+                int seq_end = cur_first_index.read_position - cur_first_index.edge_position;
+                int seq_start = prev_last_index.read_position + (g_.length(prev_iter->edgeId) - prev_last_index.edge_position);
                 if (seq_end < seq_start) {
                     DEBUG ("modifying limits because of some bullshit magic, seq length 0")
                     seq_end = seq_start;

@@ -123,10 +123,10 @@ GapFillerResult GapFiller::BestScoredPathBruteForce(const string &seq_string,
         TRACE("cur_string: " << cur_string << "\n seq_string " << seq_string);
         int cur_score = StringDistance(cur_string, seq_string);
         //DEBUG only
-        if (additional_debug) {
-            TRACE("candidate path number " << i << " , len " << cur_string.length());
-            TRACE("graph candidate: " << cur_string);
-            TRACE("in pacbio read: " << seq_string);
+        if (true) {
+            DEBUG("candidate path number " << i << " , len " << cur_string.length());
+            DEBUG("graph candidate: " << cur_string);
+            DEBUG("in pacbio read: " << seq_string);
             for (auto j_iter = paths[i].begin(); j_iter != paths[i].end();
                     ++j_iter) {
                 DEBUG(g_.int_id(*j_iter));
@@ -140,9 +140,9 @@ GapFillerResult GapFiller::BestScoredPathBruteForce(const string &seq_string,
     }
     TRACE(best_score);
 
-    if (best_score > seq_string.size() * 0.05) {
+    if (best_score > seq_string.size() * 0.10) {
         DEBUG("Best score is not reliable");
-        if (return_code == 0) {
+            if (return_code == 0) {
             bf_res.return_code.status = 12345;
         }
         return bf_res;
