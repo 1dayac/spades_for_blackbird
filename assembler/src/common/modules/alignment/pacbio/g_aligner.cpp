@@ -26,7 +26,7 @@ void GAligner::FillGapsInCluster(const vector<QualityRange> &cur_cluster,
     start_clusters.push_back(*cur_cluster.begin());
     for (auto iter = cur_cluster.begin(); iter != cur_cluster.end();) {
         EdgeId cur_edge = iter->edgeId;
-        if (prev_edge != EdgeId()) {
+        if (prev_edge != EdgeId() ) {
 //Need to find sequence of edges between clusters
             VertexId start_v = g_.EdgeEnd(prev_edge);
             VertexId end_v = g_.EdgeStart(cur_edge);
@@ -68,6 +68,14 @@ void GAligner::FillGapsInCluster(const vector<QualityRange> &cur_cluster,
                 if (seq_end < seq_start) {
                     DEBUG ("modifying limits because of some bullshit magic, seq length 0")
                     seq_end = seq_start;
+                    bwa_hits.push_back(cur_sorted_hits);
+                    edges.push_back(cur_sorted_edges);
+                    start_clusters.push_back(*iter);
+                    end_clusters.push_back(*prev_iter);
+                    cur_sorted_edges.clear();
+                    cur_sorted_hits.clear();
+                    prev_edge = EdgeId();
+                    continue;
                 }
                 DEBUG("taking subseq" << seq_start << " " << seq_end << " " << s.size());
                 string seq_string = s.Subseq(seq_start, min(seq_end, (int) s.size() )).str();
@@ -302,6 +310,23 @@ OneReadMapping GAligner::AddGapDescriptions(const vector<QualityRange> &start_cl
                 }
 
             //}
+        }
+        else if (before_gap == after_gap && before_gap != g_.conjugate(after_gap)) {
+            const auto &a = end_clusters[i];
+            const auto &b = start_clusters[j];
+            size_t seq_start = a.sorted_positions[a.last_trustable_index].read_position + g_.k();
+            size_t seq_end = b.sorted_positions[b.first_trustable_index].read_position;
+            size_t left_offset = a.sorted_positions[a.last_trustable_index].edge_position;
+            size_t right_offset = b.sorted_positions[b.first_trustable_index].edge_position;
+            auto gap = CreateGapInfoTryFixOverlap(g_, s,
+                                                  seq_start, seq_end,
+                                                  a.edgeId, left_offset,
+                                                  b.edgeId, right_offset);
+            if (gap != GapDescription()) {
+                illumina_gaps.push_back(gap);
+                DEBUG("adding gap between alignments number " << i << " and " << j);
+            }
+
         }
     }
     DEBUG("Resulting hits num=" << sorted_edges.size());
