@@ -1138,9 +1138,11 @@ public:
 
                     if (UniqueBackPath(**it, positions[i])) {
                         DEBUG("Success");
-                        success = true;
                         EdgeId next = (*it)->At(positions[i] + 1);
                         weights_cands[next] += (*it)->GetWeight();
+                        if (weights_cands[next] > 2) {
+                            success = true;
+                        }
                         filtered_cands.insert(next);
                     }
                 }
@@ -1156,13 +1158,13 @@ public:
                         && EqualBegins(path, (int) path.Size() - 1, **it,
                                        positions[i], false)) {
                             EdgeId next = (*it)->At(positions[i] + 1);
-                            next_variants[next]++;
+                            next_variants[next] += (*it)->GetWeight();
                             second_candidate = next;
                     }
                 }
             }
             if (next_variants.size() == 1 ) {
-                if (next_variants[second_candidate] >= 2) {
+                if (next_variants[second_candidate] >= 4) {
                     weights_cands[second_candidate] += next_variants[second_candidate];
                     filtered_cands.insert(second_candidate);
                 }
