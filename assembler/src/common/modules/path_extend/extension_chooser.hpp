@@ -1164,7 +1164,7 @@ public:
                 }
             }
             if (next_variants.size() == 1 ) {
-                if (next_variants[second_candidate] >= 4) {
+                if (next_variants[second_candidate] >= 2) {
                     weights_cands[second_candidate] += next_variants[second_candidate];
                     filtered_cands.insert(second_candidate);
                 }
