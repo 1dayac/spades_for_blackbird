@@ -186,6 +186,22 @@ public:
 
     virtual EdgeContainer Filter(const BidirectionalPath& path, const EdgeContainer& edges) const = 0;
 
+    bool CheckLongTip(const BidirectionalPath& path, const EdgeContainer& edges) const {
+        EdgeId e = path.Back();
+        if (g_.length(e) > 500 && g_.IncomingEdgeCount(g_.EdgeStart(e)) == 0)
+            return false;
+        if (edges.size() == 1) {
+            VertexId v = g_.EdgeEnd(e);
+            for (auto e2 : g_.IncomingEdges(v)) {
+                if (e == e2)
+                    continue;
+                if (g_.length(e2) > 500 && g_.IncomingEdgeCount(g_.EdgeStart(e2)) == 0)
+                    return false;
+            }
+        }
+        return true;
+    }
+
     bool CheckThreshold(double weight) const {
         return math::ge(weight, weight_threshold_);
     }
@@ -430,7 +446,7 @@ class ExcludingExtensionChooser: public ExtensionChooser {
         EdgeContainer top = FindPossibleEdges(weights, max_weight);
         DEBUG("Top-scored edges " << top.size());
         EdgeContainer result;
-        if (CheckThreshold(max_weight)) {
+        if (CheckThreshold(max_weight) && CheckLongTip(path, edges)) {
             result = top;
         }
         return result;
