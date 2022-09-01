@@ -188,14 +188,14 @@ public:
 
     bool CheckLongTip(const BidirectionalPath& path, const EdgeContainer& edges) const {
         EdgeId e = path.Back();
-        if (g_.length(e) > 500 && g_.IncomingEdgeCount(g_.EdgeStart(e)) == 0)
+        if (g_.length(e) > 400 && g_.IncomingEdgeCount(g_.EdgeStart(e)) == 0)
             return false;
         if (edges.size() == 1) {
             VertexId v = g_.EdgeEnd(e);
             for (auto e2 : g_.IncomingEdges(v)) {
                 if (e == e2)
                     continue;
-                if (g_.length(e2) > 500 && g_.IncomingEdgeCount(g_.EdgeStart(e2)) == 0)
+                if (g_.length(e2) > 400 && g_.IncomingEdgeCount(g_.EdgeStart(e2)) == 0)
                     return false;
             }
         }
