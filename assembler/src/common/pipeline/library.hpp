@@ -175,7 +175,8 @@ public:
     bool is_graph_constructable() const {
         return type_ == io::LibraryType::PairedEnd ||
                type_ == io::LibraryType::SingleReads ||
-               type_ == io::LibraryType::HQMatePairs;
+               type_ == io::LibraryType::HQMatePairs ||
+               type_ == io::LibraryType::PacBioReads;
     }
 
     bool is_bwa_alignable() const {

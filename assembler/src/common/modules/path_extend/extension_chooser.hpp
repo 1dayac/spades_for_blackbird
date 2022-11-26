@@ -186,6 +186,22 @@ public:
 
     virtual EdgeContainer Filter(const BidirectionalPath& path, const EdgeContainer& edges) const = 0;
 
+    bool CheckLongTip(const BidirectionalPath& path, const EdgeContainer& edges) const {
+        EdgeId e = path.Back();
+        if (g_.length(e) > 400 && g_.IncomingEdgeCount(g_.EdgeStart(e)) == 0)
+            return false;
+        if (edges.size() == 1) {
+            VertexId v = g_.EdgeEnd(e);
+            for (auto e2 : g_.IncomingEdges(v)) {
+                if (e == e2)
+                    continue;
+                if (g_.length(e2) > 400 && g_.IncomingEdgeCount(g_.EdgeStart(e2)) == 0)
+                    return false;
+            }
+        }
+        return true;
+    }
+
     bool CheckThreshold(double weight) const {
         return math::ge(weight, weight_threshold_);
     }
@@ -430,7 +446,7 @@ class ExcludingExtensionChooser: public ExtensionChooser {
         EdgeContainer top = FindPossibleEdges(weights, max_weight);
         DEBUG("Top-scored edges " << top.size());
         EdgeContainer result;
-        if (CheckThreshold(max_weight)) {
+        if (CheckThreshold(max_weight) && CheckLongTip(path, edges)) {
             result = top;
         }
         return result;
@@ -1138,9 +1154,11 @@ public:
 
                     if (UniqueBackPath(**it, positions[i])) {
                         DEBUG("Success");
-                        success = true;
                         EdgeId next = (*it)->At(positions[i] + 1);
                         weights_cands[next] += (*it)->GetWeight();
+                        if (weights_cands[next] > 2) {
+                            success = true;
+                        }
                         filtered_cands.insert(next);
                     }
                 }
@@ -1156,7 +1174,7 @@ public:
                         && EqualBegins(path, (int) path.Size() - 1, **it,
                                        positions[i], false)) {
                             EdgeId next = (*it)->At(positions[i] + 1);
-                            next_variants[next]++;
+                            next_variants[next] += (*it)->GetWeight();
                             second_candidate = next;
                     }
                 }

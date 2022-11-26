@@ -50,7 +50,7 @@ public:
     }
 
     EdgeId operator() (const GapDescription& gap, bool compress = true) {
-        VERIFY(gap.left() != g_.conjugate(gap.right()));
+        VERIFY(gap.left() != gap.right() && gap.left() != g_.conjugate(gap.right()));
         DEBUG("Processing gap " << gap.str(g_));
         EdgeId start = ClipEnd(gap.left(), gap.left_trim());
         EdgeId end = ClipStart(gap.right(), gap.right_trim());

@@ -194,8 +194,6 @@ private:
     void FilterIndex(size_t min_weight, size_t max_flank) {
         DEBUG("Filtering by maximal allowed flanking length " << max_flank);
         FilterByDescription([=](const GapDescription &gap) {
-            if (gap.left() == gap.right())
-                return false;
             return gap.left_trim() > max_flank
                    || gap.right_trim() > max_flank;
         });
@@ -396,7 +394,7 @@ class MultiGapJoiner {
         std::vector<GapDescription> answer;
         return std::all_of(gaps.begin(), gaps.end(), [&](const GapDescription &gap) {
             return IsCanonical(g_, gap.left(), gap.right()) &&
-                    gap.left() != g_.conjugate(gap.right());
+                    gap.left() != gap.right() && gap.left() != g_.conjugate(gap.right());
         });
     }
 

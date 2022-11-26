@@ -323,9 +323,6 @@ omnigraph::MappingPath<debruijn_graph::EdgeId> BWAIndex::GetMappingPath(const me
 
     for (size_t i = 0; i < ar.n; ++i) {
         const mem_alnreg_t &a = ar.a[i];
-        auto a_struct = mem_reg2aln(memopt_.get(), idx_->bns, idx_->pac, int(seq.length()), seq.data(), &ar.a[i]); // get forward-strand position and CIGAR
-        printf("%s\t%c\t%s\t%ld\t%d\t", "123", "+-"[a_struct.is_rev], idx_->bns->anns[a.rid].name, (long)a_struct.pos, a_struct.mapq);
-
 
         if (skip_secondary_ && a.secondary >= 0) continue; // skip secondary alignments
 
@@ -353,56 +350,7 @@ omnigraph::MappingPath<debruijn_graph::EdgeId> BWAIndex::GetMappingPath(const me
             mapping_range_end = pos + a.re - a.rb - g_.k();
         }
         DEBUG(a);
-
-
-        int edge_start = pos;
-        int read_start = a.qb;
-
-        struct split {
-            size_t a = 0 ,b = 0,c = 0, d = 0;
-        };
-        std::vector<split> split_positions;
-        for (int k = 0; k < a_struct.n_cigar; ++k) // print CIGAR
-        {
-            char type = "MIDSH"[a_struct.cigar[k]&0xf];
-            int len = a_struct.cigar[k]>>4;
-            if (type == 'I' && len >= 45) {
-                split s;
-                s.a = edge_start;
-                s.b = edge_start;
-                s.c = read_start;
-                s.d = read_start + len;
-                split_positions.push_back(s);
-            }
-            if (type == 'D' && len >= 45) {
-                split s;
-                s.a = edge_start;
-                s.b = edge_start + len;
-                s.c = read_start;
-                s.d = read_start;
-                split_positions.push_back(s);
-            }
-            if (type == 'S') {
-                read_start += len;
-            }
-
-            if (type == 'D') {
-                edge_start += len;
-            }
-            if (type == 'I') {
-                read_start += len;
-            }
-
-            if (type == 'M') {
-                read_start += len;
-                edge_start += len;
-            }
-            printf("%d%c", a_struct.cigar[k]>>4, "MIDSH"[a_struct.cigar[k]&0xf]);
-        }
-        printf("\t%d\n", a_struct.NM); // print edit distance
-        free(a_struct.cigar); // don't forget to deallocate CIGAR
-
-        //FIXME: what about other scoring systems?
+//FIXME: what about other scoring systems?
         double qual = double(a.score)/double(a.qe - a.qb);
         DEBUG("Edge: "<< ids_[a.rid] << " quality from score: " << qual);
         
@@ -410,35 +358,13 @@ omnigraph::MappingPath<debruijn_graph::EdgeId> BWAIndex::GetMappingPath(const me
         if (MostlyInVertex(pos, pos + a.re - a.rb, g_.length(ids_[a.rid]), g_.k()))
             continue;
         if (!is_rev) {
-            size_t curr_edge_start = pos;
-            size_t curr_read_start = (size_t)a.qb;
-
-            for (int i = 0; i < split_positions.size(); ++i) {
-                res.push_back(ids_[a.rid],
-                              { { curr_read_start, split_positions[i].c },
-                                { curr_edge_start, split_positions[i].a}, qual});
-                curr_edge_start = split_positions[i].b;
-                curr_read_start = split_positions[i].d;
-
-            }
             res.push_back(ids_[a.rid],
-                          { { curr_read_start, initial_range_end },
-                            { curr_edge_start, mapping_range_end}, qual});
+                          { { (size_t)a.qb, initial_range_end },
+                            { pos, mapping_range_end}, qual});
         } else {
-            size_t curr_edge_start = pos;
-            size_t curr_read_start = (size_t)a.qb;
-
-            for (int i = 0; i < split_positions.size(); ++i) {
-                res.push_back(g_.conjugate(ids_[a.rid]),
-                              { Range(curr_read_start, split_positions[i].c).Invert(seq.size()),
-                                Range( curr_edge_start, split_positions[i].a).Invert(g_.length(ids_[a.rid])), qual});
-                curr_edge_start = split_positions[i].b;
-                curr_read_start = split_positions[i].d;
-
-            }
             res.push_back(g_.conjugate(ids_[a.rid]),
-                          { Range(curr_read_start, initial_range_end ).Invert(seq.size()), //.Invert(read_length),
-                            Range(curr_edge_start,  mapping_range_end).Invert(g_.length(ids_[a.rid])) , qual});
+                          { { (size_t)a.qb, initial_range_end }, //.Invert(read_length),
+                            Range(pos,  mapping_range_end).Invert(g_.length(ids_[a.rid])) , qual});
 
         }
         if (only_simple && res.size() > 1)
@@ -456,7 +382,6 @@ omnigraph::MappingPath<debruijn_graph::EdgeId> BWAIndex::AlignSequence(const Seq
     std::string seq = sequence.str();
     mem_alnreg_v ar = mem_align1(memopt_.get(), idx_->bwt, idx_->bns, idx_->pac,
                                  int(seq.length()), seq.data());
-
     res = GetMappingPath(ar, seq, only_simple);
 
     free(ar.a);
