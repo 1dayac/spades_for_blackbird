@@ -141,7 +141,7 @@ private:
             }
         }
         else {
-            path.PushBack(loop_outgoing);
+            //path.PushBack(loop_outgoing);
         }
     }
 };
