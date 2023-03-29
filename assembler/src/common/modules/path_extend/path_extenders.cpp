@@ -210,7 +210,8 @@ boost::optional<bool> LoopDetectingPathExtender::TryToResolveShortLoop(Bidirecti
     if (!path.Empty() && InvestigateShortLoop()) {
         if (loop_detector.EdgeInShortLoop(path.Back())) {
             DEBUG("Edge in short loop");
-            return ResolveShortLoop(path);
+            ResolveShortLoop(path);
+            return true;
         }
         if (loop_detector.PrevEdgeInShortLoop()) {
             DEBUG("Prev edge in short loop");

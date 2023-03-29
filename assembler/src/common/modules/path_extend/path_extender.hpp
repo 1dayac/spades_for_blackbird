@@ -208,7 +208,7 @@ public:
 
         size_t result = 0;
         double lopp_edge_weight = wc_->CountWeight(path, backward_edge, {}, 0, true);
-        if (math::gr(lopp_edge_weight, weight_threshold_)) {
+        if (math::gr(lopp_edge_weight, 0.3)) {
             //Paired information on loop back edges exits => at leat one iteration
             //Looking for paired information supporting more than 1 cycle
             if (NoSelfPairedInfo(backward_edge, forward_cycle_edge)) {
