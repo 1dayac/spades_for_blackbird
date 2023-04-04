@@ -248,8 +248,8 @@ class PathCoverWeightCounter: public WeightCounter {
                     (int) path.LengthAt(e_w_pi.e_) + add_gap);
 
             TRACE("Actual weight " << weight);
-            //if (weight < 2.9 && !in_short_loop)
-            //    weight = 0;
+            if (weight < 2.9 && !in_short_loop)
+                weight = 0;
             if (normalize_weight_) {
                 weight /= ideal_weight;
             }
