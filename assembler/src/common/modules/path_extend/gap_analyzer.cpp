@@ -47,7 +47,7 @@ GapDescription HammingGapAnalyzer::FixGap(const GapDescription &gap) const {
         min_overlap = std::max(min_overlap, size_t(math::round(MIN_OVERLAP_COEFF * double(-gap.estimated_dist()))));
     }
     //todo better usage of estimated overlap
-    DEBUG("Min overlap " << min_overlap);
+        DEBUG("Min overlap " << min_overlap);
 
     for (size_t l = max_overlap; l >= min_overlap; --l) {
         //TRACE("Sink: " << g_.EdgeNucls(sink).Subseq(g_.length(sink) + g_.k() - l).str());

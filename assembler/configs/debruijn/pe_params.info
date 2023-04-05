@@ -54,7 +54,7 @@ params {
         sum_threshold 3  
 
         cluster_info  true
-        cl_threshold  0
+        cl_threshold  1000000
 
         fix_gaps       false
         use_la_gap_joiner false
