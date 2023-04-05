@@ -59,13 +59,13 @@ params {
         fix_gaps       false
         use_la_gap_joiner false
         ;next param should be 0.51 - 1.0 if use_old_score = true and 3.0 otherwise
-        min_gap_score   0.7
+        min_gap_score   0.9
 
         max_can_overlap   1.
         short_overlap     6
         artificial_gap    10
 
-        min_overlap_length 10
+        min_overlap_length 30
         flank_multiplication_coefficient .5
         flank_addition_coefficient 5
 
