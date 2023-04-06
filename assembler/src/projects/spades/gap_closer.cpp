@@ -35,6 +35,9 @@ private:
 
     void ProcessPairedRead(const MappingPath<EdgeId> &path1, const MappingPath<EdgeId> &path2) {
         for (size_t i = 0; i < path1.size(); ++i) {
+            if (path1[i].first.int_id() == 5765 &&  path2[0].first.int_id() != 5765) {
+                INFO("Here");
+            }
             auto OutTipIter = out_tip_map_.find(path1[i].first);
             if (OutTipIter == out_tip_map_.cend())
                 continue;
@@ -67,7 +70,8 @@ private:
             for (EdgeId edge : ranges[i]) {
                 if (!graph_.IsDeadEnd(graph_.EdgeEnd(edge)))
                     continue;
-
+                if (edge.int_id() == 7393 || edge.int_id() == 7392 || edge.int_id() == 7394)
+                    INFO("Here");
                 local_out_tip_map.emplace(edge, edge);
                 std::stack<std::pair<EdgeId, size_t>> edge_stack;
                 edge_stack.emplace(edge, 0);
@@ -77,7 +81,8 @@ private:
                     VertexId start = graph_.EdgeStart(checking_pair.first);
                     checking_pair.second += graph_.length(checking_pair.first);
 
-                    if (!graph_.CheckUniqueOutgoingEdge(start) || checking_pair.second > size_t(max_dist_to_tip_)) {
+//                    if (!graph_.CheckUniqueOutgoingEdge(start) || checking_pair.second > size_t(max_dist_to_tip_)) {
+                    if (checking_pair.second > size_t(max_dist_to_tip_)) {
                         continue;
                     }
 
@@ -148,7 +153,7 @@ public:
         }
     }
 
-    void ProcessPairedRead(size_t /* thread_index */, const io::PairedRead&  /* pr */,
+    void ProcessPairedRead(size_t /* thread_index */, const io::PairedRead& pr ,
                            const MappingPath<EdgeId> &path1,
                            const MappingPath<EdgeId> &path2) override {
         ProcessPairedRead(path1, path2);
