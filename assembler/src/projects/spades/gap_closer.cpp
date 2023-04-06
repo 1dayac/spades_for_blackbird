@@ -408,7 +408,7 @@ public:
 
         hamming_dist_bound_ = 1;
         for (auto edge = g_.SmartEdgeBegin(); !edge.IsEnd(); ++edge) {
-            if (id == "early_gapcloser")
+            if (strcmp(id, "early_gapcloser") == 0)
                 break;
             EdgeId first_edge = *edge;
             for (auto i : tips_paired_idx_.Get(first_edge)) {
