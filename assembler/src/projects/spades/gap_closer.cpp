@@ -420,7 +420,7 @@ public:
                     break;
             } // second edge
         } // first edge
-        hamming_dist_bound_ = 1;
+        hamming_dist_bound_ = 2;
         for (auto edge = g_.SmartEdgeBegin(); !edge.IsEnd(); ++edge) {
             if (strcmp(id, "early_gapcloser") == 0)
                 break;
