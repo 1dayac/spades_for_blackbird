@@ -173,8 +173,10 @@ static void AddSimplificationStages(StageManager &SPAdes) {
 
     SPAdes.add<debruijn_graph::Simplification>();
 
-    if (cfg::get().gap_closer_enable && cfg::get().gc.after_simplify)
+    if (cfg::get().gap_closer_enable && cfg::get().gc.after_simplify) {
         SPAdes.add<debruijn_graph::GapClosing>("late_gapcloser");
+        SPAdes.add<debruijn_graph::GapClosing>("late_gapcloser_2");
+    }
 
     SPAdes.add<debruijn_graph::SimplificationCleanup>();
 
