@@ -231,6 +231,7 @@ class GapCloser {
 
     //todo write easier
     bool CanCorrectRight(EdgeId e, int overlap, const MismatchPos &mismatch_pos) const {
+        return false;
         return PosThatCanCorrect(overlap, mismatch_pos, g_.length(e) + g_.k(), false).size() == mismatch_pos.size();
     }
 
@@ -249,16 +250,18 @@ class GapCloser {
         DEBUG("Splitting first edge.");
         auto split_res = g_.SplitEdge(first, g_.length(first) - overlap + diff_pos.front());
         first = split_res.first;
-        tips_paired_idx_.Remove(first);
+        tips_paired_idx_.Remove(split_res.second);
         DEBUG("Adding new edge.");
         VERIFY(MatchesEnd(new_sequence, g_.VertexNucls(g_.EdgeEnd(first)), true));
         VERIFY(MatchesEnd(new_sequence, g_.VertexNucls(g_.EdgeStart(second)), false));
+        INFO(new_sequence);
         g_.AddEdge(g_.EdgeEnd(first), g_.EdgeStart(second),
                 new_sequence);
         mark_for_deletion_.insert(split_res.second);
     }
 
     void CorrectRight(EdgeId first, EdgeId second, int overlap, const MismatchPos &diff_pos) {
+        //return;
         DEBUG("Can correct second with sequence from first.");
         Sequence new_sequence =
                 g_.EdgeNucls(first).Last(k_) + g_.EdgeNucls(second).Subseq(overlap, diff_pos.back() + 1 + k_);
@@ -267,11 +270,11 @@ class GapCloser {
         DEBUG("Splitting second edge.");
         auto split_res = g_.SplitEdge(second, diff_pos.back() + 1);
         second = split_res.second;
-        tips_paired_idx_.Remove(second);
+        tips_paired_idx_.Remove(first);
         DEBUG("Adding new edge.");
         VERIFY(MatchesEnd(new_sequence, g_.VertexNucls(g_.EdgeEnd(first)), true));
         VERIFY(MatchesEnd(new_sequence, g_.VertexNucls(g_.EdgeStart(second)), false));
-
+        INFO(new_sequence);
         g_.AddEdge(g_.EdgeEnd(first), g_.EdgeStart(second),
                 new_sequence);
         mark_for_deletion_.insert(split_res.first);
@@ -417,7 +420,7 @@ public:
                     break;
             } // second edge
         } // first edge
-        hamming_dist_bound_ = 0;
+        hamming_dist_bound_ = 1;
         for (auto edge = g_.SmartEdgeBegin(); !edge.IsEnd(); ++edge) {
             if (strcmp(id, "early_gapcloser") == 0)
                 break;
@@ -448,8 +451,8 @@ public:
                     break;
             } // second edge
         } // first edge
-        for (auto e : mark_for_deletion_)
-            g_.DeleteEdge(e);
+//        for (auto e : mark_for_deletion_)
+//            g_.DeleteEdge(e);
         mark_for_deletion_.clear();
 
         INFO("Closing short gaps complete: filled " << gaps_filled
