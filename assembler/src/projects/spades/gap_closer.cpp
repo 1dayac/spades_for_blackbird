@@ -372,7 +372,7 @@ class GapCloser {
 
 public:
     //TODO extract methods
-    void CloseShortGaps() {
+    void CloseShortGaps(const char *id) {
         INFO("Closing short gaps");
         size_t gaps_filled = 0;
         size_t gaps_checked = 0;
@@ -408,6 +408,8 @@ public:
 
         hamming_dist_bound_ = 1;
         for (auto edge = g_.SmartEdgeBegin(); !edge.IsEnd(); ++edge) {
+            if (id == "early_gapcloser")
+                break;
             EdgeId first_edge = *edge;
             for (auto i : tips_paired_idx_.Get(first_edge)) {
                 EdgeId second_edge = i.first;
@@ -501,7 +503,7 @@ void GapClosing::run(GraphPack &gp, const char *) {
         INFO("Initializing gap closer");
         GapCloser gap_closer(g, tips_paired_idx,
                              cfg::get().gc.minimal_intersection, cfg::get().gc.weight_threshold, 0);
-        gap_closer.CloseShortGaps();
+        gap_closer.CloseShortGaps(this->id());
         INFO("Gap closer done");
     }
 }
