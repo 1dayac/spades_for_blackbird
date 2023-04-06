@@ -70,7 +70,7 @@ private:
             for (EdgeId edge : ranges[i]) {
                 if (!graph_.IsDeadEnd(graph_.EdgeEnd(edge)))
                     continue;
-                if (edge.int_id() == 7393 || edge.int_id() == 7392 || edge.int_id() == 7394)
+                if (edge.int_id() == 11467 )
                     INFO("Here");
                 local_out_tip_map.emplace(edge, edge);
                 std::stack<std::pair<EdgeId, size_t>> edge_stack;
@@ -125,7 +125,7 @@ public:
         }
         edges.shrink_to_fit();
 
-        if (edges.size() > 0) {
+            if (edges.size() > 0) {
             index_.Refill(edges);
             mapper_ = MapperInstance(gp, index_);
         }
@@ -178,7 +178,7 @@ class GapCloser {
     int k_;
     omnigraph::de::PairedInfoIndexT<Graph> &tips_paired_idx_;
     const size_t min_intersection_;
-    const size_t hamming_dist_bound_;
+    size_t hamming_dist_bound_;
     const omnigraph::de::DEWeight weight_threshold_;
 
     std::vector<size_t> DiffPos(const Sequence &s1, const Sequence &s2) const {
@@ -191,6 +191,8 @@ class GapCloser {
     }
 
     size_t LimitedHammingDistance(const Sequence &s1, const Sequence &s2, size_t bound) const {
+        if (s1.size() != s2.size())
+            return std::numeric_limits<size_t>::max();
         VERIFY(s1.size() == s2.size());
         size_t dist = 0;
         for (size_t i = 0; i < s1.size(); ++i) {
@@ -254,6 +256,8 @@ class GapCloser {
         VERIFY(MatchesEnd(new_sequence, g_.VertexNucls(g_.EdgeStart(second)), false));
         g_.AddEdge(g_.EdgeEnd(first), g_.EdgeStart(second),
                 new_sequence);
+        g_.DeleteEdge(split_res.second);
+
     }
 
     void CorrectRight(EdgeId first, EdgeId second, int overlap, const MismatchPos &diff_pos) {
@@ -307,8 +311,10 @@ class GapCloser {
         return true;
     }
 
-    bool ProcessPair(EdgeId first, EdgeId second) {
+    bool ProcessPair(EdgeId first, EdgeId second, bool second_run) {
         TRACE("Processing edges " << g_.str(first) << " and " << g_.str(second));
+        if (first.int_id() == 11197)
+            INFO("Here");
         TRACE("first " << g_.EdgeNucls(first) << " second " << g_.EdgeNucls(second));
 
         if (cfg::get().avoid_rc_connections &&
@@ -319,8 +325,14 @@ class GapCloser {
 
         Sequence seq1 = g_.EdgeNucls(first), seq2 = g_.EdgeNucls(second);
         TRACE("Checking possible gaps from 1 to " << k_ - min_intersection_);
-        for (int gap = 1; gap <= k_ - (int) min_intersection_; ++gap) {
+
+        int start_gap = 1;
+        if (second_run)
+            start_gap = -k_;
+        for (int gap = start_gap ; gap <= k_ - (int) min_intersection_; ++gap) {
             int overlap = k_ - gap;
+            if (seq1.size() < overlap || seq2.size() < overlap)
+                continue;
             size_t hamming_distance = LimitedHammingDistance(seq1.Last(overlap), seq2.First(overlap), hamming_dist_bound_);
             if (hamming_distance > hamming_dist_bound_)
                 continue;
@@ -364,6 +376,7 @@ public:
         INFO("Closing short gaps");
         size_t gaps_filled = 0;
         size_t gaps_checked = 0;
+
         for (auto edge = g_.SmartEdgeBegin(); !edge.IsEnd(); ++edge) {
             EdgeId first_edge = *edge;
             for (auto i : tips_paired_idx_.Get(first_edge)) {
@@ -382,7 +395,7 @@ public:
                         continue;
 
                     ++gaps_checked;
-                    closed = ProcessPair(first_edge, second_edge);
+                    closed = ProcessPair(first_edge, second_edge, false);
                     if (closed) {
                         ++gaps_filled;
                         break;
@@ -392,6 +405,37 @@ public:
                     break;
             } // second edge
         } // first edge
+
+        hamming_dist_bound_ = 1;
+        for (auto edge = g_.SmartEdgeBegin(); !edge.IsEnd(); ++edge) {
+            EdgeId first_edge = *edge;
+            for (auto i : tips_paired_idx_.Get(first_edge)) {
+                EdgeId second_edge = i.first;
+                if (first_edge == second_edge)
+                    continue;
+
+                if (!g_.IsDeadEnd(g_.EdgeEnd(first_edge)) || !g_.IsDeadStart(g_.EdgeStart(second_edge))) {
+                    // WARN("Topologically wrong tips");
+                    continue;
+                }
+
+                bool closed = false;
+                for (auto point : i.second) {
+                    if (math::ls(point.weight, weight_threshold_))
+                        continue;
+
+                    ++gaps_checked;
+                    closed = ProcessPair(first_edge, second_edge, true);
+                    if (closed) {
+                        ++gaps_filled;
+                        break;
+                    }
+                }
+                if (closed)
+                    break;
+            } // second edge
+        } // first edge
+
 
         INFO("Closing short gaps complete: filled " << gaps_filled
              << " gaps after checking " << gaps_checked
@@ -456,7 +500,7 @@ void GapClosing::run(GraphPack &gp, const char *) {
 
         INFO("Initializing gap closer");
         GapCloser gap_closer(g, tips_paired_idx,
-                             cfg::get().gc.minimal_intersection, cfg::get().gc.weight_threshold);
+                             cfg::get().gc.minimal_intersection, cfg::get().gc.weight_threshold, 0);
         gap_closer.CloseShortGaps();
         INFO("Gap closer done");
     }
