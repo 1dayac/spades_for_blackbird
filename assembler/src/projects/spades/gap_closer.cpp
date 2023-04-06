@@ -35,9 +35,6 @@ private:
 
     void ProcessPairedRead(const MappingPath<EdgeId> &path1, const MappingPath<EdgeId> &path2) {
         for (size_t i = 0; i < path1.size(); ++i) {
-            if (path1[i].first.int_id() == 5765 &&  path2[0].first.int_id() != 5765) {
-                INFO("Here");
-            }
             auto OutTipIter = out_tip_map_.find(path1[i].first);
             if (OutTipIter == out_tip_map_.cend())
                 continue;
@@ -125,7 +122,7 @@ public:
         }
         edges.shrink_to_fit();
 
-            if (edges.size() > 0) {
+        if (edges.size() > 0) {
             index_.Refill(edges);
             mapper_ = MapperInstance(gp, index_);
         }
@@ -153,7 +150,7 @@ public:
         }
     }
 
-    void ProcessPairedRead(size_t /* thread_index */, const io::PairedRead& pr ,
+    void ProcessPairedRead(size_t /* thread_index */, const io::PairedRead& /* pr */ ,
                            const MappingPath<EdgeId> &path1,
                            const MappingPath<EdgeId> &path2) override {
         ProcessPairedRead(path1, path2);
@@ -326,8 +323,6 @@ class GapCloser {
 
     bool ProcessPair(EdgeId first, EdgeId second, bool second_run) {
         TRACE("Processing edges " << g_.str(first) << " and " << g_.str(second));
-        if (first.int_id() == 11197)
-            INFO("Here");
         TRACE("first " << g_.EdgeNucls(first) << " second " << g_.EdgeNucls(second));
 
         if (cfg::get().avoid_rc_connections &&
