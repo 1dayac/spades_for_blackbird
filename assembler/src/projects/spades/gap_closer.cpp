@@ -281,15 +281,28 @@ class GapCloser {
     bool HandlePositiveHammingDistanceCase(EdgeId first, EdgeId second, int overlap) {
         DEBUG("Match was imperfect. Trying to correct one of the tips");
         auto diff_pos = DiffPos(g_.EdgeNucls(first).Last(overlap), g_.EdgeNucls(second).First(overlap));
-        if (CanCorrectLeft(first, overlap, diff_pos)) {
-            CorrectLeft(first, second, overlap, diff_pos);
-            return true;
-        } else if (CanCorrectRight(second, overlap, diff_pos)) {
-            CorrectRight(first, second, overlap, diff_pos);
-            return true;
+        if (g_.coverage(second) > g_.coverage(first)) {
+            if (CanCorrectLeft(first, overlap, diff_pos)) {
+                CorrectLeft(first, second, overlap, diff_pos);
+                return true;
+            } else if (CanCorrectRight(second, overlap, diff_pos)) {
+                CorrectRight(first, second, overlap, diff_pos);
+                return true;
+            } else {
+                DEBUG("Can't correct tips due to the graph structure");
+                return false;
+            }
         } else {
-            DEBUG("Can't correct tips due to the graph structure");
-            return false;
+            if (CanCorrectRight(second, overlap, diff_pos)) {
+                CorrectRight(first, second, overlap, diff_pos);
+                return true;
+            } else if (CanCorrectLeft(first, overlap, diff_pos)) {
+                CorrectLeft(first, second, overlap, diff_pos);
+                return true;
+            } else {
+                DEBUG("Can't correct tips due to the graph structure");
+                return false;
+            }
         }
     }
 
