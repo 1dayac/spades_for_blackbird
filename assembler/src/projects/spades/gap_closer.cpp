@@ -67,7 +67,7 @@ private:
             for (EdgeId edge : ranges[i]) {
                 if (!graph_.IsDeadEnd(graph_.EdgeEnd(edge)))
                     continue;
-                if (edge.int_id() == 11467 )
+                if (edge.int_id() == 192 ||  edge.int_id() == 197)
                     INFO("Here");
                 local_out_tip_map.emplace(edge, edge);
                 std::stack<std::pair<EdgeId, size_t>> edge_stack;
@@ -177,6 +177,8 @@ class GapCloser {
     const size_t min_intersection_;
     size_t hamming_dist_bound_;
     const omnigraph::de::DEWeight weight_threshold_;
+    std::set<EdgeId> mark_for_deletion_;
+
 
     std::vector<size_t> DiffPos(const Sequence &s1, const Sequence &s2) const {
         VERIFY(s1.size() == s2.size());
@@ -247,14 +249,13 @@ class GapCloser {
         DEBUG("Splitting first edge.");
         auto split_res = g_.SplitEdge(first, g_.length(first) - overlap + diff_pos.front());
         first = split_res.first;
-        tips_paired_idx_.Remove(split_res.second);
+        tips_paired_idx_.Remove(first);
         DEBUG("Adding new edge.");
         VERIFY(MatchesEnd(new_sequence, g_.VertexNucls(g_.EdgeEnd(first)), true));
         VERIFY(MatchesEnd(new_sequence, g_.VertexNucls(g_.EdgeStart(second)), false));
         g_.AddEdge(g_.EdgeEnd(first), g_.EdgeStart(second),
                 new_sequence);
-        g_.DeleteEdge(split_res.second);
-
+        mark_for_deletion_.insert(split_res.second);
     }
 
     void CorrectRight(EdgeId first, EdgeId second, int overlap, const MismatchPos &diff_pos) {
@@ -266,18 +267,21 @@ class GapCloser {
         DEBUG("Splitting second edge.");
         auto split_res = g_.SplitEdge(second, diff_pos.back() + 1);
         second = split_res.second;
-        tips_paired_idx_.Remove(split_res.first);
+        tips_paired_idx_.Remove(second);
         DEBUG("Adding new edge.");
         VERIFY(MatchesEnd(new_sequence, g_.VertexNucls(g_.EdgeEnd(first)), true));
         VERIFY(MatchesEnd(new_sequence, g_.VertexNucls(g_.EdgeStart(second)), false));
 
         g_.AddEdge(g_.EdgeEnd(first), g_.EdgeStart(second),
                 new_sequence);
+        mark_for_deletion_.insert(split_res.first);
     }
 
     bool HandlePositiveHammingDistanceCase(EdgeId first, EdgeId second, int overlap) {
         DEBUG("Match was imperfect. Trying to correct one of the tips");
         auto diff_pos = DiffPos(g_.EdgeNucls(first).Last(overlap), g_.EdgeNucls(second).First(overlap));
+        INFO(g_.coverage(second));
+        INFO(g_.coverage(first));
         if (g_.coverage(second) > g_.coverage(first)) {
             if (CanCorrectLeft(first, overlap, diff_pos)) {
                 CorrectLeft(first, second, overlap, diff_pos);
@@ -399,7 +403,7 @@ public:
 
                 bool closed = false;
                 for (auto point : i.second) {
-                    if (math::ls(point.weight, weight_threshold_))
+                    if (math::ls(point.weight, 1))
                         continue;
 
                     ++gaps_checked;
@@ -413,8 +417,7 @@ public:
                     break;
             } // second edge
         } // first edge
-
-        hamming_dist_bound_ = 1;
+        hamming_dist_bound_ = 0;
         for (auto edge = g_.SmartEdgeBegin(); !edge.IsEnd(); ++edge) {
             if (strcmp(id, "early_gapcloser") == 0)
                 break;
@@ -431,7 +434,7 @@ public:
 
                 bool closed = false;
                 for (auto point : i.second) {
-                    if (math::ls(point.weight, weight_threshold_))
+                    if (math::ls(point.weight, 1))
                         continue;
 
                     ++gaps_checked;
@@ -445,7 +448,9 @@ public:
                     break;
             } // second edge
         } // first edge
-
+        for (auto e : mark_for_deletion_)
+            g_.DeleteEdge(e);
+        mark_for_deletion_.clear();
 
         INFO("Closing short gaps complete: filled " << gaps_filled
              << " gaps after checking " << gaps_checked
