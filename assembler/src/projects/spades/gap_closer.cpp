@@ -81,8 +81,8 @@ private:
                     VertexId start = graph_.EdgeStart(checking_pair.first);
                     checking_pair.second += graph_.length(checking_pair.first);
 
-//                    if (!graph_.CheckUniqueOutgoingEdge(start) || checking_pair.second > size_t(max_dist_to_tip_)) {
-                    if (checking_pair.second > size_t(max_dist_to_tip_)) {
+                    if (!graph_.CheckUniqueOutgoingEdge(start) || checking_pair.second > size_t(max_dist_to_tip_)) {
+//                    if (checking_pair.second > size_t(max_dist_to_tip_)) {
                         continue;
                     }
 
