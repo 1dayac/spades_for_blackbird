@@ -242,22 +242,42 @@ class GapCloser {
 
     void CorrectLeft(EdgeId first, EdgeId second, int overlap, const MismatchPos &diff_pos) {
         DEBUG("Can correct first with sequence from second.");
-        Sequence new_sequence = g_.EdgeNucls(first).Subseq(g_.length(first) - overlap + diff_pos.front(),
-                                                           g_.length(first) + k_ - overlap)
-                                + g_.EdgeNucls(second).First(k_);
-        DEBUG("Checking new k+1-mers.");
-        DEBUG("Check ok.");
-        DEBUG("Splitting first edge.");
-        auto split_res = g_.SplitEdge(first, g_.length(first) - overlap + diff_pos.front());
-        first = split_res.first;
-        tips_paired_idx_.Remove(split_res.second);
-        DEBUG("Adding new edge.");
-        VERIFY(MatchesEnd(new_sequence, g_.VertexNucls(g_.EdgeEnd(first)), true));
-        VERIFY(MatchesEnd(new_sequence, g_.VertexNucls(g_.EdgeStart(second)), false));
-        INFO(new_sequence);
-        g_.AddEdge(g_.EdgeEnd(first), g_.EdgeStart(second),
-                new_sequence);
-        mark_for_deletion_.insert(split_res.second);
+        INFO(g_.length(first) - overlap + diff_pos.front());
+        INFO(g_.length(first) + k_ - overlap);
+        if (g_.length(first) - overlap + diff_pos.front() <= g_.length(first) + k_ - overlap) {
+            Sequence new_sequence = g_.EdgeNucls(first).Subseq(g_.length(first) - overlap + diff_pos.front(),
+                                                               g_.length(first) + k_ - overlap)
+                                    + g_.EdgeNucls(second).First(k_);
+            DEBUG("Checking new k+1-mers.");
+            DEBUG("Check ok.");
+            DEBUG("Splitting first edge.");
+            auto split_res = g_.SplitEdge(first, g_.length(first) - overlap + diff_pos.front());
+            first = split_res.first;
+            tips_paired_idx_.Remove(split_res.second);
+            DEBUG("Adding new edge.");
+            VERIFY(MatchesEnd(new_sequence, g_.VertexNucls(g_.EdgeEnd(first)), true));
+            VERIFY(MatchesEnd(new_sequence, g_.VertexNucls(g_.EdgeStart(second)), false));
+            INFO(new_sequence);
+            g_.AddEdge(g_.EdgeEnd(first), g_.EdgeStart(second),
+                       new_sequence);
+            mark_for_deletion_.insert(split_res.second);
+        } else {
+            Sequence new_sequence = g_.EdgeNucls(second).First(k_ + 1);
+            auto split_res_second = g_.SplitEdge(second, 1);
+            auto split_res = g_.SplitEdge(first, g_.length(first) - overlap + diff_pos.front() - 1);
+            tips_paired_idx_.Remove(split_res.second);
+            auto new_first = split_res.first;
+            auto new_second = split_res_second.second;
+            INFO(new_sequence);
+            INFO(g_.VertexNucls(g_.EdgeEnd(new_first)));
+            INFO(g_.VertexNucls(g_.EdgeStart(new_second)));
+            VERIFY(MatchesEnd(new_sequence, g_.VertexNucls(g_.EdgeEnd(new_first)), true));
+            VERIFY(MatchesEnd(new_sequence, g_.VertexNucls(g_.EdgeStart(new_second)), false));
+            g_.AddEdge(g_.EdgeEnd(new_first), g_.EdgeStart(new_second),
+                       new_sequence);
+            mark_for_deletion_.insert(split_res.second);
+            mark_for_deletion_.insert(split_res_second.first);
+        }
     }
 
     void CorrectRight(EdgeId first, EdgeId second, int overlap, const MismatchPos &diff_pos) {
@@ -451,8 +471,8 @@ public:
                     break;
             } // second edge
         } // first edge
-//        for (auto e : mark_for_deletion_)
-//            g_.DeleteEdge(e);
+        for (auto e : mark_for_deletion_)
+            g_.DeleteEdge(e);
         mark_for_deletion_.clear();
 
         INFO("Closing short gaps complete: filled " << gaps_filled
