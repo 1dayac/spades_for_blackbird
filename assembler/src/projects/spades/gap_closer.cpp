@@ -242,6 +242,8 @@ class GapCloser {
 
     void CorrectLeft(EdgeId first, EdgeId second, int overlap, const MismatchPos &diff_pos) {
         DEBUG("Can correct first with sequence from second.");
+        if (first.int_id() == 14328)
+            INFO("Here");
         INFO(g_.length(first) - overlap + diff_pos.front());
         INFO(g_.length(first) + k_ - overlap);
         if (g_.length(first) - overlap + diff_pos.front() <= g_.length(first) + k_ - overlap) {
@@ -262,9 +264,10 @@ class GapCloser {
                        new_sequence);
             mark_for_deletion_.insert(split_res.second);
         } else {
-            Sequence new_sequence = g_.EdgeNucls(second).First(k_ + 1);
             auto split_res_second = g_.SplitEdge(second, 1);
-            auto split_res = g_.SplitEdge(first, g_.length(first) - overlap + diff_pos.front() - 1);
+            auto split_res = g_.SplitEdge(first, g_.length(first) - overlap  + k_);
+
+            Sequence new_sequence = g_.EdgeNucls(split_res.first).Last(k_) + g_.EdgeNucls(split_res_second.first).Last(1) ;
             tips_paired_idx_.Remove(split_res.second);
             auto new_first = split_res.first;
             auto new_second = split_res_second.second;
