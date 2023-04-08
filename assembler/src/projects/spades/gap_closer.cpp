@@ -216,6 +216,8 @@ class GapCloser {
                     left_edge ?
                     mismatch_pos[i] :
                     overlap_length - 1 - mismatch_pos[i];
+            if (relative_mm_pos == k_)
+                continue;
             if (overlap_length - relative_mm_pos + g_.k() < edge_length)
                 //can correct mismatch
                 answer.push_back(mismatch_pos[i]);
@@ -226,6 +228,8 @@ class GapCloser {
 
     //todo write easier
     bool CanCorrectLeft(EdgeId e, int overlap, const MismatchPos &mismatch_pos) const {
+        if (e.int_id() == 358)
+            INFO("Here");
         return PosThatCanCorrect(overlap, mismatch_pos, g_.length(e) + g_.k(), true).size() == mismatch_pos.size();
     }
 
@@ -242,7 +246,7 @@ class GapCloser {
 
     void CorrectLeft(EdgeId first, EdgeId second, int overlap, const MismatchPos &diff_pos) {
         DEBUG("Can correct first with sequence from second.");
-        if (first.int_id() == 14328)
+        if (first.int_id() == 358)
             INFO("Here");
         INFO(g_.length(first) - overlap + diff_pos.front());
         INFO(g_.length(first) + k_ - overlap);
