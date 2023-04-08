@@ -178,6 +178,7 @@ class GapCloser {
     size_t hamming_dist_bound_;
     const omnigraph::de::DEWeight weight_threshold_;
     std::set<EdgeId> mark_for_deletion_;
+    std::set<EdgeId> already_removed_;
 
 
     std::vector<size_t> DiffPos(const Sequence &s1, const Sequence &s2) const {
@@ -235,7 +236,7 @@ class GapCloser {
 
     //todo write easier
     bool CanCorrectRight(EdgeId e, int overlap, const MismatchPos &mismatch_pos) const {
-        return false;
+        //return false;
         return PosThatCanCorrect(overlap, mismatch_pos, g_.length(e) + g_.k(), false).size() == mismatch_pos.size();
     }
 
@@ -288,20 +289,27 @@ class GapCloser {
     }
 
     void CorrectRight(EdgeId first, EdgeId second, int overlap, const MismatchPos &diff_pos) {
-        //return;
         DEBUG("Can correct second with sequence from first.");
         Sequence new_sequence =
                 g_.EdgeNucls(first).Last(k_) + g_.EdgeNucls(second).Subseq(overlap, diff_pos.back() + 1 + k_);
         DEBUG("Checking new k+1-mers.");
         DEBUG("Check ok.");
         DEBUG("Splitting second edge.");
+        already_removed_.insert(second);
+        tips_paired_idx_.Remove(first);
+        tips_paired_idx_.Remove(second);
+
         auto split_res = g_.SplitEdge(second, diff_pos.back() + 1);
         second = split_res.second;
-        tips_paired_idx_.Remove(first);
+        tips_paired_idx_.Remove(second);
+
         DEBUG("Adding new edge.");
+        INFO(new_sequence);
+        INFO(g_.VertexNucls(g_.EdgeEnd(first)));
+        INFO(g_.VertexNucls(g_.EdgeStart(second)));
+
         VERIFY(MatchesEnd(new_sequence, g_.VertexNucls(g_.EdgeEnd(first)), true));
         VERIFY(MatchesEnd(new_sequence, g_.VertexNucls(g_.EdgeStart(second)), false));
-        INFO(new_sequence);
         g_.AddEdge(g_.EdgeEnd(first), g_.EdgeStart(second),
                 new_sequence);
         mark_for_deletion_.insert(split_res.first);
@@ -454,6 +462,8 @@ public:
             EdgeId first_edge = *edge;
             for (auto i : tips_paired_idx_.Get(first_edge)) {
                 EdgeId second_edge = i.first;
+                if (already_removed_.count(second_edge))
+                    continue;
                 if (first_edge == second_edge)
                     continue;
 
@@ -481,6 +491,7 @@ public:
         for (auto e : mark_for_deletion_)
             g_.DeleteEdge(e);
         mark_for_deletion_.clear();
+        already_removed_.clear();
 
         INFO("Closing short gaps complete: filled " << gaps_filled
              << " gaps after checking " << gaps_checked
