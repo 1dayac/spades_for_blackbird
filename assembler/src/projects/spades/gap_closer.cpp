@@ -296,6 +296,8 @@ class GapCloser {
         DEBUG("Check ok.");
         DEBUG("Splitting second edge.");
         already_removed_.insert(second);
+        already_removed_.insert(g_.conjugate(second));
+
         tips_paired_idx_.Remove(first);
         tips_paired_idx_.Remove(second);
 
