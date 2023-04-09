@@ -114,7 +114,7 @@ simp
     ; final tip clipper:
     final_tc
     {
-	condition               "{ tc_lb 1.5, cb 3.0, rctc 2.0 } { tc_lb 2., cb 3.0 }"    
+	condition               "{ tc_lb 1.5, cb 3.0, rctc 2.0 } { tc_lb 4., cb 1.0 }"    
     }
 
     ; final bulge remover:
