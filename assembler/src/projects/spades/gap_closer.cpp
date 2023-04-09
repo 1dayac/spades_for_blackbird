@@ -259,6 +259,8 @@ class GapCloser {
             DEBUG("Check ok.");
             DEBUG("Splitting first edge.");
             already_removed_.insert(first);
+            already_removed_.insert(g_.conjugate(first));
+
             auto split_res = g_.SplitEdge(first, g_.length(first) - overlap + diff_pos.front());
             first = split_res.first;
             tips_paired_idx_.Remove(split_res.second);
@@ -274,6 +276,8 @@ class GapCloser {
             auto split_res = g_.SplitEdge(first, g_.length(first) - overlap  + k_);
             already_removed_.insert(first);
             already_removed_.insert(second);
+            already_removed_.insert(g_.conjugate(first));
+            already_removed_.insert(g_.conjugate(second));
             Sequence new_sequence = g_.EdgeNucls(split_res.first).Last(k_) + g_.EdgeNucls(split_res_second.first).Last(1) ;
             tips_paired_idx_.Remove(split_res.second);
             auto new_first = split_res.first;
@@ -364,6 +368,7 @@ class GapCloser {
         DEBUG("Gap filled: Gap size = " << k_ - overlap << "  Result seq "
               << edge_sequence.str());
         g_.AddEdge(g_.EdgeEnd(first), g_.EdgeStart(second), edge_sequence);
+        
         return true;
     }
 
