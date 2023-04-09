@@ -11,6 +11,7 @@
 #include "modules/alignment/sequence_mapper_notifier.hpp"
 #include "paired_info/concurrent_pair_info_buffer.hpp"
 #include "io/dataset_support/read_converter.hpp"
+#include "assembly_graph/graph_support/basic_edge_conditions.hpp"
 
 #include <parallel_hashmap/phmap.h>
 #include <numeric>
@@ -368,7 +369,7 @@ class GapCloser {
         DEBUG("Gap filled: Gap size = " << k_ - overlap << "  Result seq "
               << edge_sequence.str());
         g_.AddEdge(g_.EdgeEnd(first), g_.EdgeStart(second), edge_sequence);
-        
+
         return true;
     }
 
@@ -435,9 +436,11 @@ public:
         INFO("Closing short gaps");
         size_t gaps_filled = 0;
         size_t gaps_checked = 0;
-
+        IsolatedEdgeCondition<Graph> cond(g_);
         for (auto edge = g_.SmartEdgeBegin(); !edge.IsEnd(); ++edge) {
             EdgeId first_edge = *edge;
+            if (cond.Check(first_edge) && g_.length(first_edge) < 110)
+                continue;
             for (auto i : tips_paired_idx_.Get(first_edge)) {
                 EdgeId second_edge = i.first;
                 if (first_edge == second_edge)
@@ -447,6 +450,8 @@ public:
                     // WARN("Topologically wrong tips");
                     continue;
                 }
+                if (cond.Check(second_edge) && g_.length(second_edge) < 110)
+                    continue;
 
                 bool closed = false;
                 for (auto point : i.second) {
