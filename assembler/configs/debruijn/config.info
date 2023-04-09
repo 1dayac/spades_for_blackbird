@@ -119,7 +119,7 @@ gap_closer_enable   true
 
 gap_closer
 {
-    minimal_intersection	10
+    minimal_intersection	25
 
     ;before_raw_simplify and before_simplify are mutually exclusive
     before_raw_simplify    		true
