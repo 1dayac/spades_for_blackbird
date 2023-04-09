@@ -258,6 +258,7 @@ class GapCloser {
             DEBUG("Checking new k+1-mers.");
             DEBUG("Check ok.");
             DEBUG("Splitting first edge.");
+            already_removed_.insert(first);
             auto split_res = g_.SplitEdge(first, g_.length(first) - overlap + diff_pos.front());
             first = split_res.first;
             tips_paired_idx_.Remove(split_res.second);
@@ -271,7 +272,8 @@ class GapCloser {
         } else {
             auto split_res_second = g_.SplitEdge(second, 1);
             auto split_res = g_.SplitEdge(first, g_.length(first) - overlap  + k_);
-
+            already_removed_.insert(first);
+            already_removed_.insert(second);
             Sequence new_sequence = g_.EdgeNucls(split_res.first).Last(k_) + g_.EdgeNucls(split_res_second.first).Last(1) ;
             tips_paired_idx_.Remove(split_res.second);
             auto new_first = split_res.first;
@@ -464,7 +466,7 @@ public:
             EdgeId first_edge = *edge;
             for (auto i : tips_paired_idx_.Get(first_edge)) {
                 EdgeId second_edge = i.first;
-                if (already_removed_.count(second_edge))
+                if (already_removed_.count(second_edge) || mark_for_deletion_.count(second_edge))
                     continue;
                 if (first_edge == second_edge)
                     continue;
