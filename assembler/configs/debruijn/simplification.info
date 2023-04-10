@@ -24,7 +24,7 @@ simp
         }
 
         tip_condition   "{ tc_lb 3.5, cb 1.5 }"
-        ec_condition    "{ ec_lb 10, cb 2.0 } { ec_lb 2, cb 5.0 }"
+        ec_condition    "{ ec_lb 10, cb 2.0 }"
 
         ; edges with flank cov around alternative less than value will be disconnected 
         ; negative value to disable
