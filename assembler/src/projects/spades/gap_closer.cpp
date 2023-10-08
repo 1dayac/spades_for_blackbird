@@ -439,7 +439,7 @@ public:
         IsolatedEdgeCondition<Graph> cond(g_);
         for (auto edge = g_.SmartEdgeBegin(); !edge.IsEnd(); ++edge) {
             EdgeId first_edge = *edge;
-            if (cond.Check(first_edge) && g_.length(first_edge) < 110)
+            if (cond.Check(first_edge) )
                 continue;
             for (auto i : tips_paired_idx_.Get(first_edge)) {
                 EdgeId second_edge = i.first;
@@ -450,7 +450,7 @@ public:
                     // WARN("Topologically wrong tips");
                     continue;
                 }
-                if (cond.Check(second_edge) && g_.length(second_edge) < 110)
+                if (cond.Check(second_edge))
                     continue;
 
                 bool closed = false;

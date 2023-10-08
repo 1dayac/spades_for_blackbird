@@ -199,8 +199,8 @@ bool LoopDetectingPathExtender::MakeGrowStep(BidirectionalPath& path, PathContai
     if (DetectCycle(path))
         return false;
 
-    if (auto attempt = TryToResolveShortLoop(path))
-        return *attempt;
+//    if (auto attempt = TryToResolveShortLoop(path))
+//        return *attempt;
 
     return path_is_growed;
 }
