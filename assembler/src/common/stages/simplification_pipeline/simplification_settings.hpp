@@ -15,8 +15,7 @@ namespace simplification {
 class LengthThresholdFinder {
 public:
     static size_t MaxTipLength(size_t read_length, size_t k, double coeff) {
-        return std::max((size_t) math::round((double)std::min(k, read_length / 2) * coeff),
-                        read_length);
+        return (size_t) math::round((double)std::min(k, read_length / 2) * coeff);
     }
 
     static size_t MaxBulgeLength(size_t k, double coeff,
